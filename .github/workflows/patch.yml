@@ -1,0 +1,74 @@
+name: CI - Patch latest Sequoia metallib's
+
+on:
+  schedule:
+  - cron: "0 */2 * * *"
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: CI - Patch latest Sequoia metallib's
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Download latest Sequoia IPSW
+        run: echo "IPSW_FILE=$(python3 metallib.py --download --continuous-integration)" >> $GITHUB_OUTPUT
+        id: download
+
+      - name: Extract system volume
+        if: steps.download.outputs.IPSW_FILE != ''
+        run: echo "DMG_FILE=$(python3 metallib.py --extract ${{ steps.download.outputs.IPSW_FILE }})" >> $GITHUB_OUTPUT
+        id: extract
+
+      - name: Fetch metal libraries
+        if: steps.extract.outputs.DMG_FILE != ''
+        run: echo "BACKUP_FOLDER=$(python3 metallib.py --fetch ${{ steps.extract.outputs.DMG_FILE }})" >> $GITHUB_OUTPUT
+        id: fetch
+
+      - name: Patch metal libraries
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }}
+
+      - name: Build sys_patch_dict.py
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        run: python3 metallib.py --build-sys-patch ${{ steps.fetch.outputs.BACKUP_FOLDER }} --continuous-integration
+
+      - name: Build Package
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        run: python3 metallib.py --build-package ${{ steps.fetch.outputs.BACKUP_FOLDER }}
+
+      - name: Upload metal libraries to Artifactions
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        uses: actions/upload-artifact@v3
+        with:
+          name: MetallibSupportPkg.pkg
+          path: ./MetallibSupportPkg-*.pkg
+
+      - name: Upload sys_patch_dict.py to Artifactions
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        uses: actions/upload-artifact@v3
+        with:
+          name: sys_patch_dict.py
+          path: sys_patch_dict.py
+
+      - name: Create GitHub release
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            MetallibSupportPkg-*.pkg
+            sys_patch_dict.py
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.fetch.outputs.BACKUP_FOLDER }}

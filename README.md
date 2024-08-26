@@ -9,16 +9,16 @@ MetallibSupportPkg houses the `metal_libraries` python library, which was develo
 1. Programmatically fetching the latest macOS Sequoia IPSW.
 2. Extract the system volume DMG from the IPSW.
 3. If the disk image is AEA encrypted, decrypt using [`aastuff`](https://github.com/dhinakg/aeota).
-4. Mount the disk image, and extract all supported `.metallib` files
-5. Patch the `.metallib` files to support Metal 3802 GPUs
-6. Convert the directory into a macOS Distribution Package (PKG)
+4. Mount the disk image, and extract all supported `.metallib` files.
+5. Patch the `.metallib` files to support Metal 3802 GPUs.
+6. Convert the directory into a macOS Distribution Package (PKG).
 
 Notes regarding patching individual `.metallib` files:
 1. Each `.metallib` is a collection of `.air` files.
 2. Certain `.metallib` files are actually FAT Mach-O files. Thus they need to be thinned manually (Apple's `lipo` utility does not support the AIR64 architecture we need).
     - [metallib/patch.py: `_thin_file()`](./metal_libraries/metallib/patch.py#L218-L270)
 3. Each `.metallib` file is actually a collection of `.air` files. Need to extract them using [zhouwei's format](https://github.com/zhuowei/MetalShaderTool).
-    - metallib/patch.py: `_unpack_metallib_to_air()`](./metal_libraries/metallib/patch.py#L127-L187)
+    - [metallib/patch.py: `_unpack_metallib_to_air()`](./metal_libraries/metallib/patch.py#L127-L187)
 4. `.air` files need to be next decompiled to `.ll` (LLVM IR) using Apple's `metal-objdump` utility.
     - [metallib/patch.py: `_decompile_air_to_ll()`](./metal_libraries/metallib/patch.py#L77-L109)
 5. With the LLVM IR, we can begin patching the AIR version to v26 (compared to Sequoia's v27) as well as other necessary changes.

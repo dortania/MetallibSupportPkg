@@ -345,11 +345,12 @@ class MetallibPatch:
         """
         Attempt to resolve the parent directory
         """
+        extensions = [".framework", ".app", ".appex", ".bundle", ".cifilter"]
         parent_file = file
         attempts = 0
         while True:
             parent_file = parent_file.parent
-            if parent_file.name.endswith(".framework") or parent_file.name.endswith(".app"):
+            if any([parent_file.name.endswith(ext) for ext in extensions]):
                 break
             if attempts > 5:
                 return str(file)

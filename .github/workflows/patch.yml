@@ -47,7 +47,7 @@ jobs:
 
       - name: Build Package
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        run: python3 metallib.py --build-package ${{ steps.fetch.outputs.BACKUP_FOLDER }}
+        run: python3 metallib.py --build-pkg ${{ steps.fetch.outputs.BACKUP_FOLDER }}
 
       - name: Upload metal libraries to Artifactions
         if: steps.fetch.outputs.BACKUP_FOLDER != ''

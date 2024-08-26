@@ -86,17 +86,19 @@ def build_pkg(input: str) -> None:
     """
     Builds a macOS package from a given directory
     """
+    name = Path(input).name
     assert macos_pkg_builder.Packages(
-        pkg_output=f"MetallibSupportPkg-{Path(input).name}.pkg",
-        pkg_bundle_id=f"com.dortania.metallibsupportpkg.{Path(input).name}",
+        pkg_output=f"MetallibSupportPkg-{name}.pkg",
+        pkg_bundle_id=f"com.dortania.metallibsupportpkg.{name}",
         pkg_version=__version__,
         pkg_file_structure={
-            input: f"/Library/Application Support/Dortania/MetallibSupportPkg/{Path(input).name}"
+            input: f"/Library/Application Support/Dortania/MetallibSupportPkg/{name}"
         },
         pkg_welcome=f"# MetallibSupportPkg\n\nThis package installs patched Metal Libraries for usage with OpenCore Legacy Patcher specifically targeting Macs with Metal 3802-based Graphics cards on macOS 15, Sequoia and newer.\n\nAffected graphics card models:\n\n* Intel Ivy Bridge and Haswell iGPUs\n* Nvidia Kepler dGPUs\n\n----------\nInstall destination:\n\n* `/Library/Application Support/Dortania/MetallibSupportPkg/{Path(input).name}`\n\n----------\n\nFor more information, see the [MetallibSupportPkg repository]({__url__}).",
-        pkg_title=f"MetallibSupportPkg for {Path(input).name}",
+        pkg_title=f"MetallibSupportPkg for {name}",
         pkg_as_distribution=True
     ).build() is True
+    print(f"MetallibSupportPkg-{name}.pkg")
 
 
 def build_sys_patch(input: str, ci: bool = False) -> None:

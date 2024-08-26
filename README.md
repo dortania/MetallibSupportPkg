@@ -1,6 +1,6 @@
 # MetallibSupportPkg
 
-A collection of utilities related to patching Metal Libraries (`.metallib`) in macOS, specifically with the goal of restoring support for legacy hardware (namely Metal 3802-based GPUs)
+A collection of utilities related to patching Metal Libraries (`.metallib`) in macOS, specifically with the goal of restoring support for legacy hardware (namely Metal 3802-based GPUs on macOS Sequoia).
 
 ## Logic
 
@@ -32,8 +32,10 @@ Once finished, the resulting `.metallib` files should work with Metal 3802-based
 
 ## Usage
 
+MetallibSupportPkg is not meant to be used by general users, the following is intended for developers.
+
+Install the required dependencies:
 ```bash
-# Install the required dependencies
 python3 -m pip install -r requirements.txt
 # Note Xcode is required to be installed for the `metal` and `metal-objdump` utilities
 ```

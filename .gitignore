@@ -1,0 +1,7 @@
+.DS_Store
+*.pyc
+*.ipsw
+/sys_patch_dict.py
+*.dmg
+*.pkg
+/15*

@@ -66,7 +66,7 @@ def fetch(input: str = "/", output: str = None) -> str:
     return MetallibFetch(input, output).backup()
 
 
-def patch(input: str = "/") -> None:
+def patch(input: str = "/", multiprocessing: bool = False) -> None:
     """
     Patches all .metallib files in a given path
 
@@ -77,7 +77,7 @@ def patch(input: str = "/") -> None:
     - None
     """
     if Path(input).is_dir():
-        MetallibPatch().patch_all(input)
+        MetallibPatch().patch_all(input, multiprocessing)
     else:
         MetallibPatch().patch(input, input)
 
@@ -119,6 +119,7 @@ def main() -> None:
     parser.add_argument("-e", "--extract",                type=str,            help="Extract the system volume from an IPSW.")
     parser.add_argument("-f", "--fetch",                  type=str,            help="Fetch Metal libraries from the system volume.")
     parser.add_argument("-p", "--patch",                  type=str,            help="Patch Metal libraries.")
+    parser.add_argument("-m", "--multiprocessing",        action="store_true", help="Enable multiprocessing for patching.")
     parser.add_argument("-b", "--build-sys-patch",        type=str,            help="Build a system patch dictionary.")
     parser.add_argument("-z", "--build-pkg",              type=str,            help="Build a macOS package.")
     parser.add_argument("-c", "--continuous-integration", action="store_true", help="Run in continuous integration mode.")
@@ -132,7 +133,7 @@ def main() -> None:
     elif args.fetch:
         print(fetch(args.fetch))
     elif args.patch:
-        patch(args.patch)
+        patch(args.patch, args.multiprocessing)
     elif args.build_sys_patch:
         build_sys_patch(args.build_sys_patch, args.continuous_integration)
     elif args.build_pkg:

@@ -33,6 +33,7 @@ import re
 import struct
 import tempfile
 import subprocess
+import multiprocessing
 
 from pathlib import Path
 from typing import Optional
@@ -358,24 +359,38 @@ class MetallibPatch:
         return parent_file.name
 
 
-    def patch_all(self, input: str) -> None:
+    def _patch_all_process_individual_file(self, file: Path) -> None:
         """
+        patch_all()'s multiprocessing helper
         """
-        for file in Path(input).rglob("**/*.metallib"):
-            input = file
-            output = file.with_suffix(".PATCHED")
-            input_parent = self._attempt_to_resolve_parent(file)
-            print(f"{'-' * 80}")
-            print(f"Patching: {input_parent}'s {input.name}")
-            self.patch(input, output)
-            if output.exists():
-                result = subprocess.run(["/bin/mv", output, input], capture_output=True, text=True)
-                if result.returncode != 0:
-                    log(result)
-                    raise Exception(f"Failed to move {output} to {input}")
-            else:
-                # remove the input file if the output file does not exist
-                result = subprocess.run(["/bin/rm", input], capture_output=True, text=True)
-                if result.returncode != 0:
-                    log(result)
-                    raise Exception(f"Failed to remove {input}")
+        input = file
+        output = file.with_suffix(".PATCHED")
+        input_parent = self._attempt_to_resolve_parent(file)
+        print(f"{'-' * 80}")
+        print(f"Patching: {input_parent}'s {input.name}")
+        self.patch(input, output)
+        if output.exists():
+            result = subprocess.run(["/bin/mv", output, input], capture_output=True, text=True)
+            if result.returncode != 0:
+                log(result)
+                raise Exception(f"Failed to move {output} to {input}")
+        else:
+            # remove the input file if the output file does not exist
+            result = subprocess.run(["/bin/rm", input], capture_output=True, text=True)
+            if result.returncode != 0:
+                log(result)
+                raise Exception(f"Failed to remove {input}")
+
+
+    def patch_all(self, input: str, use_multiprocessing: bool = False) -> None:
+        """
+        Patch all .metallib files in the given directory
+        """
+        if use_multiprocessing is True:
+            files = list(Path(input).rglob("**/*.metallib"))
+            with multiprocessing.Pool() as pool:
+                # Use the pool to process files in parallel
+                pool.starmap(self._patch_all_process_individual_file, [(file,) for file in files])
+        else:
+            for file in Path(input).rglob("**/*.metallib"):
+                self._patch_all_process_individual_file(file)

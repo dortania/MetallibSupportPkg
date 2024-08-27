@@ -2,7 +2,7 @@ name: CI - Patch latest Sequoia metallib's
 
 on:
   schedule:
-  - cron: "0 */2 * * *"
+  - cron: "0 */3 * * *"
   push:
     branches:
       - main
@@ -52,7 +52,7 @@ jobs:
 
       - name: Patch metal libraries
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }} --multiprocessing
+        run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }}
 
       - name: Build sys_patch_dict.py
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
@@ -86,7 +86,7 @@ jobs:
           CLEAN: true
 
       - name: Create GitHub release
-        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
         uses: softprops/action-gh-release@v1
         with:
           files: |

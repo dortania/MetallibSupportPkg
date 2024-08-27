@@ -75,6 +75,9 @@ class MetallibSupportPkgManifest:
         # Add new item
         current_manifest.append(data)
 
+        # Sort by date
+        current_manifest = sorted(current_manifest, key=lambda x: datetime.strptime(x["date"], "%Y-%m-%d"), reverse=True)
+
         # Create deploy directory
         Path("deploy").mkdir(exist_ok=True)
 

@@ -4,6 +4,7 @@ cli.py: Command Line Interface for MetallibSupportPkg patching utilities
 
 import argparse
 import macos_pkg_builder
+import mac_signing_buddy
 
 from pathlib import Path
 
@@ -82,7 +83,7 @@ def patch(input: str = "/", multiprocessing: bool = False) -> None:
         MetallibPatch().patch(input, input)
 
 
-def build_pkg(input: str) -> None:
+def build_pkg(input: str, pkg_signing_identity: str = None, notarization_team_id: str = None, notarization_apple_id: str = None, notarization_password: str = None) -> None:
     """
     Builds a macOS package from a given directory
     """
@@ -96,8 +97,24 @@ def build_pkg(input: str) -> None:
         },
         pkg_welcome=f"# MetallibSupportPkg\n\nThis package installs patched Metal Libraries for usage with OpenCore Legacy Patcher specifically targeting Macs with Metal 3802-based Graphics cards on macOS 15, Sequoia and newer.\n\nAffected graphics card models:\n\n* Intel Ivy Bridge and Haswell iGPUs\n* Nvidia Kepler dGPUs\n\n----------\nInstall destination:\n\n* `/Library/Application Support/Dortania/MetallibSupportPkg/{Path(input).name}`\n\n----------\n\nFor more information, see the [MetallibSupportPkg repository]({__url__}).",
         pkg_title=f"MetallibSupportPkg for {name}",
-        pkg_as_distribution=True
+        pkg_as_distribution=True,
+        **({"pkg_signing_identity": pkg_signing_identity} if pkg_signing_identity else {}),
     ).build() is True
+
+    if all([notarization_team_id, notarization_apple_id, notarization_password]):
+        mac_signing_buddy.Sign(
+            f"MetallibSupportPkg-{name}.pkg",
+            notarization_team_id,
+            notarization_apple_id,
+            notarization_password
+        ).sign()
+        mac_signing_buddy.Notarize(
+            f"MetallibSupportPkg-{name}.pkg",
+            notarization_team_id,
+            notarization_apple_id,
+            notarization_password
+        ).sign()
+
     print(f"MetallibSupportPkg-{name}.pkg")
 
 
@@ -122,6 +139,10 @@ def main() -> None:
     parser.add_argument("-m", "--multiprocessing",        action="store_true", help="Enable multiprocessing for patching.")
     parser.add_argument("-b", "--build-sys-patch",        type=str,            help="Build a system patch dictionary.")
     parser.add_argument("-z", "--build-pkg",              type=str,            help="Build a macOS package.")
+    parser.add_argument("--pkg-signing-identity",         type=str,            help="macOS package signing identity.")
+    parser.add_argument("--notarization-team-id",         type=str,            help="Apple Notarization Team ID.")
+    parser.add_argument("--notarization-apple-id",        type=str,            help="Apple Notarization Apple ID.")
+    parser.add_argument("--notarization-password",        type=str,            help="Apple Notarization Password.")
     parser.add_argument("-c", "--continuous-integration", action="store_true", help="Run in continuous integration mode.")
 
     args = parser.parse_args()
@@ -137,6 +158,6 @@ def main() -> None:
     elif args.build_sys_patch:
         build_sys_patch(args.build_sys_patch, args.continuous_integration)
     elif args.build_pkg:
-        build_pkg(args.build_pkg)
+        build_pkg(args.build_pkg, args.pkg_signing_identity, args.notarization_team_id, args.notarization_apple_id, args.notarization_password)
     else:
         parser.print_help()

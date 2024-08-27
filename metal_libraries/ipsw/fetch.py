@@ -4,6 +4,8 @@ fetch.py: Fetch latest IPSW images for macOS
 
 import packaging.version
 
+from .manifest import MetallibSupportPkgManifest
+
 from ..network import NetworkUtilities
 
 
@@ -109,4 +111,5 @@ class FetchIPSW:
         result = self._fetch_apple_db_items()
         if len(result) == 0:
             return {}
+        MetallibSupportPkgManifest(result[0]).update_manifest()
         return result[0]["URL"]

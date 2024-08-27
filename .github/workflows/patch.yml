@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - main
+    branches-ignore:
+      - gh-pages
 
 concurrency:
   cancel-in-progress: true
@@ -15,6 +17,15 @@ jobs:
   build:
     name: CI - Patch latest Sequoia metallib's
     runs-on: macos-latest
+
+    env:
+      # PKG Signing
+      ORG_MAC_DEVELOPER_ID_INSTALLER_IDENTITY: ${{ secrets.ORG_MAC_DEVELOPER_ID_INSTALLER_IDENTITY }}
+
+      # Notarization
+      ORG_MAC_NOTARIZATION_TEAM_ID: ${{ secrets.ORG_MAC_NOTARIZATION_TEAM_ID }}
+      ORG_MAC_NOTARIZATION_APPLE_ID: ${{ secrets.ORG_MAC_NOTARIZATION_APPLE_ID }}
+      ORG_MAC_NOTARIZATION_PASSWORD: ${{ secrets.ORG_MAC_NOTARIZATION_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +62,11 @@ jobs:
 
       - name: Build Package
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        run: python3 metallib.py --build-pkg ${{ steps.fetch.outputs.BACKUP_FOLDER }}
+        run: python3 metallib.py --build-pkg ${{ steps.fetch.outputs.BACKUP_FOLDER }} --pkg-signing-identity $ORG_MAC_DEVELOPER_ID_INSTALLER_IDENTITY --notarization-team-id $ORG_MAC_NOTARIZATION_TEAM_ID --notarization-apple-id $ORG_MAC_NOTARIZATION_APPLE_ID --notarization-password $ORG_MAC_NOTARIZATION_PASSWORD
+
+      - name: Sync manifest.json
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        run: python3 metallib.py --sync-manifest ${{ steps.fetch.outputs.BACKUP_FOLDER }}
 
       - name: Upload metal libraries to Artifactions
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
@@ -66,6 +81,15 @@ jobs:
         with:
           name: sys_patch_dict.py
           path: sys_patch_dict.py
+
+      - name: Sync GitHub Pages
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: deploy/
+          CLEAN: true
 
       - name: Create GitHub release
         if: steps.fetch.outputs.BACKUP_FOLDER != ''

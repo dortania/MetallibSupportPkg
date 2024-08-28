@@ -6,3 +6,4 @@
 *.pkg
 /15*
 /deploy
+/Info.plist

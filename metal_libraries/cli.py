@@ -88,6 +88,13 @@ def build_pkg(input: str, pkg_signing_identity: str = None, notarization_team_id
     """
     Builds a macOS package from a given directory
     """
+    import logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="[%(asctime)s] [%(filename)-22s] [%(levelname)-8s] [%(lineno)-3d]: %(message)s",
+        handlers=[logging.StreamHandler()]
+    )
+
     name = Path(input).name
     assert macos_pkg_builder.Packages(
         pkg_output=f"MetallibSupportPkg-{name}.pkg",

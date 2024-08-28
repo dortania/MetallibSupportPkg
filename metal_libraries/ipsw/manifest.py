@@ -41,6 +41,7 @@ class MetallibSupportPkgManifest:
             version = version.split(" ")[0]
         manifest = {
             "build":     self._latest_ipsw["Build"],
+            "version":   version,
             "date":      self._latest_ipsw['Date'],
             "sha1sum":   self._latest_ipsw["Hash"],
             "name":      f"MetallibSupportPkg {self._latest_ipsw['Version']} build {self._latest_ipsw['Build']}",
@@ -74,6 +75,12 @@ class MetallibSupportPkgManifest:
 
         # Add new item
         current_manifest.append(data)
+
+        # Temp hack: Fix '24A5327a' missing 'version' property
+        # Set to '15.0'
+        for item in current_manifest:
+            if item["build"] == "24A5327a":
+                item["version"] = "15.0"
 
         # Sort by date
         current_manifest = sorted(current_manifest, key=lambda x: datetime.strptime(x["date"], "%Y-%m-%d"), reverse=True)

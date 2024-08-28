@@ -17,6 +17,9 @@ jobs:
     runs-on: macos-latest
 
     env:
+      # GitHub Releases API
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # PKG Signing
       ORG_MAC_DEVELOPER_ID_INSTALLER_IDENTITY: ${{ secrets.ORG_MAC_DEVELOPER_ID_INSTALLER_IDENTITY }}
 

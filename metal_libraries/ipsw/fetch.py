@@ -105,7 +105,7 @@ class FetchIPSW:
         """
         Save the build info to Info.plist
         """
-        info["MetellibSupportPkgVersion"] = __version__
+        info["MetallibSupportPkgVersion"] = __version__
         with open("Info.plist", "wb") as file:
             plistlib.dump(info, file)
 

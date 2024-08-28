@@ -2,12 +2,13 @@
 fetch.py: Fetch latest IPSW images for macOS
 """
 
+import plistlib
 import packaging.version
 
 from .manifest import MetallibSupportPkgManifest
 
 from ..network import NetworkUtilities
-
+from .. import __version__
 
 class FetchIPSW:
 
@@ -104,6 +105,15 @@ class FetchIPSW:
         return installers
 
 
+    def _save_info(self, info: dict) -> None:
+        """
+        Save the build info to Info.plist
+        """
+        info["MetellibSupportPkgVersion"] = __version__
+        with open("Info.plist", "wb") as file:
+            plistlib.dump(info, file)
+
+
     def fetch(self) -> dict:
         """
         Fetch latest macOS installer
@@ -112,4 +122,5 @@ class FetchIPSW:
         if len(result) == 0:
             return {}
         MetallibSupportPkgManifest(result[0]).update_manifest()
+        self._save_info(result[0])
         return result[0]["URL"]

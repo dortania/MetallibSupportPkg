@@ -36,6 +36,7 @@ def download(ci: bool = False) -> str:
     file = DownloadFile(url).file()
     return file
 
+
 def extract(input: str) -> str:
     """
     Extracts the system volume DMG from an IPSW
@@ -93,7 +94,8 @@ def build_pkg(input: str, pkg_signing_identity: str = None, notarization_team_id
         pkg_bundle_id=f"com.dortania.metallibsupportpkg.{name}",
         pkg_version=__version__,
         pkg_file_structure={
-            input: f"/Library/Application Support/Dortania/MetallibSupportPkg/{name}"
+            input:        f"/Library/Application Support/Dortania/MetallibSupportPkg/{name}",
+            "Info.plist": f"/Library/Application Support/Dortania/MetallibSupportPkg/{name}/Info.plist",
         },
         pkg_welcome=f"# MetallibSupportPkg\n\nThis package installs patched Metal Libraries for usage with OpenCore Legacy Patcher specifically targeting Macs with Metal 3802-based Graphics cards on macOS 15, Sequoia and newer.\n\nAffected graphics card models:\n\n* Intel Ivy Bridge and Haswell iGPUs\n* Nvidia Kepler dGPUs\n\n----------\nInstall destination:\n\n* `/Library/Application Support/Dortania/MetallibSupportPkg/{Path(input).name}`\n\n----------\n\nFor more information, see the [MetallibSupportPkg repository]({__url__}).",
         pkg_title=f"MetallibSupportPkg for {name}",

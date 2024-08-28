@@ -33,6 +33,12 @@ jobs:
         with:
           python-version: 3.11
 
+      - name: Import Installer Signing Certificate
+        uses: dhinakg/import-codesign-certs@master
+        with:
+          p12-file-base64: ${{ secrets.ORG_MAC_DEVELOPER_ID_INSTALLER_CERT_P12_BASE64 }}
+          p12-password: ${{ secrets.ORG_MAC_DEVELOPER_ID_INSTALLER_CERT_P12_PASSWORD }}
+
       - name: Install dependencies
         run: python3 -m pip install -r requirements.txt
 
@@ -50,9 +56,9 @@ jobs:
         run: echo "BACKUP_FOLDER=$(python3 metallib.py --fetch ${{ steps.extract.outputs.DMG_FILE }})" >> $GITHUB_OUTPUT
         id: fetch
 
-      # - name: Patch metal libraries
-      #   if: steps.fetch.outputs.BACKUP_FOLDER != ''
-      #   run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }}
+      - name: Patch metal libraries
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }}
 
       - name: Build sys_patch_dict.py
         if: steps.fetch.outputs.BACKUP_FOLDER != ''

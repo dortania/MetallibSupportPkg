@@ -60,21 +60,28 @@ jobs:
 
       - name: Build Package
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        run: python3 metallib.py --build-pkg ${{ steps.fetch.outputs.BACKUP_FOLDER }} --pkg-signing-identity $ORG_MAC_DEVELOPER_ID_INSTALLER_IDENTITY --notarization-team-id $ORG_MAC_NOTARIZATION_TEAM_ID --notarization-apple-id $ORG_MAC_NOTARIZATION_APPLE_ID --notarization-password $ORG_MAC_NOTARIZATION_PASSWORD
+        run: python3 metallib.py --build-pkg ${{ steps.fetch.outputs.BACKUP_FOLDER }} --pkg-signing-identity "${{env.ORG_MAC_DEVELOPER_ID_INSTALLER_IDENTITY}}" --notarization-team-id "${{env.ORG_MAC_NOTARIZATION_TEAM_ID}}" --notarization-apple-id "${{env.ORG_MAC_NOTARIZATION_APPLE_ID}}" --notarization-password "${{env.ORG_MAC_NOTARIZATION_PASSWORD}}"
 
-      - name: Upload metal libraries to Artifactions
+      - name: Upload metal libraries to Artifacts
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
         uses: actions/upload-artifact@v3
         with:
           name: MetallibSupportPkg.pkg
           path: ./MetallibSupportPkg-*.pkg
 
-      - name: Upload sys_patch_dict.py to Artifactions
+      - name: Upload sys_patch_dict.py to Artifacts
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
         uses: actions/upload-artifact@v3
         with:
           name: sys_patch_dict.py
           path: sys_patch_dict.py
+
+      - name: Upload manifest to Artifacts
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        uses: actions/upload-artifact@v3
+        with:
+          name: manifest.json
+          path: deploy/manifest.json
 
       - name: Sync GitHub Pages
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}

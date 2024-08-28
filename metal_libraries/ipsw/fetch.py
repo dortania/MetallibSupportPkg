@@ -59,6 +59,10 @@ class FetchIPSW:
                 except packaging.version.InvalidVersion:
                     continue
 
+                # Skip 15.1 temporarily
+                if item["version"].split(" ")[0] == "15.1":
+                    continue
+
                 name = "macOS"
                 if "appledbWebImage" in item:
                     if "id" in item["appledbWebImage"]:

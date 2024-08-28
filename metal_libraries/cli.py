@@ -111,12 +111,6 @@ def build_pkg(input: str, pkg_signing_identity: str = None, notarization_team_id
     ).build() is True
 
     if all([notarization_team_id, notarization_apple_id, notarization_password]):
-        mac_signing_buddy.Sign(
-            f"MetallibSupportPkg-{name}.pkg",
-            notarization_team_id,
-            notarization_apple_id,
-            notarization_password
-        ).sign()
         mac_signing_buddy.Notarize(
             f"MetallibSupportPkg-{name}.pkg",
             notarization_team_id,

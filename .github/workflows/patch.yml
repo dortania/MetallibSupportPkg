@@ -93,7 +93,7 @@ jobs:
           path: deploy/manifest.json
 
       - name: Sync GitHub Pages
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
+        if: ${{ github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
@@ -102,7 +102,7 @@ jobs:
           CLEAN: true
 
       - name: Create GitHub release
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
+        if: ${{ github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
         uses: softprops/action-gh-release@v1
         with:
           files: |

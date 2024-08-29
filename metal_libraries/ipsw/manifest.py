@@ -76,12 +76,6 @@ class MetallibSupportPkgManifest:
         # Add new item
         current_manifest.append(data)
 
-        # Temp hack: Fix '24A5327a' missing 'version' property
-        # Set to '15.0'
-        for item in current_manifest:
-            if item["build"] == "24A5327a":
-                item["version"] = "15.0"
-
         # Sort by date
         current_manifest = sorted(current_manifest, key=lambda x: datetime.strptime(x["date"], "%Y-%m-%d"), reverse=True)
 

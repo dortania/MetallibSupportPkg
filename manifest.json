@@ -52,5 +52,14 @@
         "name": "MetallibSupportPkg 15.0 beta 4 build 24A5298h",
         "seen": "2024-08-29",
         "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.0-24A5298h/MetallibSupportPkg-15.0-24A5298h.pkg"
+    },
+    {
+        "build": "24A5289h",
+        "version": "15.0",
+        "date": "2024-07-15",
+        "sha1sum": "f740e507e4c89f83ceaf15107e6b05a028fc86ca",
+        "name": "MetallibSupportPkg 15.0 beta 3 build 24A5289h",
+        "seen": "2024-08-29",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.0-24A5289h/MetallibSupportPkg-15.0-24A5289h.pkg"
     }
 ]

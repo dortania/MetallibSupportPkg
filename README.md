@@ -14,7 +14,7 @@ MetallibSupportPkg houses the `metal_libraries` python library, which was develo
 6. Convert the directory into a macOS Distribution Package (PKG).
 
 Notes regarding patching individual `.metallib` files:
-1. Each `.metallib` file is actually a collection of `.air` files. Need to extract them using [zhouwei's format](https://github.com/zhuowei/MetalShaderTool).
+1. Each `.metallib` file is actually a collection of `.air` files. Need to extract them using [zhouwei's format](https://github.com/zhuowei/MetalShaderTools).
     - [metallib/patch.py: `_unpack_metallib_to_air()`](./metal_libraries/metallib/patch.py#L127-L187)
 2. Certain `.metallib` files are actually FAT Mach-O files. Thus they need to be thinned manually (Apple's `lipo` utility does not support the AIR64 architecture we need).
     - [metallib/patch.py: `_thin_file()`](./metal_libraries/metallib/patch.py#L218-L270)

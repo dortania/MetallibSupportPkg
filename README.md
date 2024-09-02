@@ -14,16 +14,15 @@ MetallibSupportPkg houses the `metal_libraries` python library, which was develo
 6. Convert the directory into a macOS Distribution Package (PKG).
 
 Notes regarding patching individual `.metallib` files:
-1. Each `.metallib` is a collection of `.air` files.
+1. Each `.metallib` file is actually a collection of `.air` files. Need to extract them using [zhouwei's format](https://github.com/zhuowei/MetalShaderTool).
+    - [metallib/patch.py: `_unpack_metallib_to_air()`](./metal_libraries/metallib/patch.py#L127-L187)
 2. Certain `.metallib` files are actually FAT Mach-O files. Thus they need to be thinned manually (Apple's `lipo` utility does not support the AIR64 architecture we need).
     - [metallib/patch.py: `_thin_file()`](./metal_libraries/metallib/patch.py#L218-L270)
-3. Each `.metallib` file is actually a collection of `.air` files. Need to extract them using [zhouwei's format](https://github.com/zhuowei/MetalShaderTool).
-    - [metallib/patch.py: `_unpack_metallib_to_air()`](./metal_libraries/metallib/patch.py#L127-L187)
-4. `.air` files need to be next decompiled to `.ll` (LLVM IR) using Apple's `metal-objdump` utility.
+3. `.air` files need to be next decompiled to `.ll` (LLVM IR) using Apple's `metal-objdump` utility.
     - [metallib/patch.py: `_decompile_air_to_ll()`](./metal_libraries/metallib/patch.py#L77-L109)
-5. With the LLVM IR, we can begin patching the AIR version to v26 (compared to Sequoia's v27) as well as other necessary changes.
+4. With the LLVM IR, we can begin patching the AIR version to v26 (compared to Sequoia's v27) as well as other necessary changes.
     - [metallib/patch.py: `_patch_ll()`](./metal_libraries/metallib/patch.py#L190-L215)
-6. To compile IR to `.air`, we use Apple's `metal` utility.
+5. To compile IR to `.air`, we use Apple's `metal` utility.
     - [metallib/patch.py: `_recompile_ll_to_air()`](./metal_libraries/metallib/patch.py#L60-L74)
 7. To pack each `.air` to a `.metallib` collection, we use Apple's `metallib` utility.
     - [metallib/patch.py: `_pack_air_to_metallib()`](./metal_libraries/metallib/patch.py#L112-L124)

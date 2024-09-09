@@ -42,6 +42,17 @@ jobs:
           p12-file-base64: ${{ secrets.ORG_MAC_DEVELOPER_ID_INSTALLER_CERT_P12_BASE64 }}
           p12-password: ${{ secrets.ORG_MAC_DEVELOPER_ID_INSTALLER_CERT_P12_PASSWORD }}
 
+      - name: Free up space
+        run: |
+          /bin/rm -rf /Applications/Xcode_16.1_beta.app
+          /bin/rm -rf /Applications/Xcode_16_beta_6.app
+          /bin/rm -rf /Applications/Xcode_15.3.app
+          /bin/rm -rf /Applications/Xcode_15.2.app
+          /bin/rm -rf /Applications/Xcode_15.1.app
+          /bin/rm -rf /Applications/Xcode_15.0.1.app
+          /bin/rm -rf /Applications/Xcode_14.3.1.app
+          /bin/rm -rf /Users/runner/Library/Android/sdk
+
       - name: Install dependencies
         run: python3 -m pip install -r requirements.txt
 

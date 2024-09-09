@@ -33,6 +33,8 @@ def download(ci: bool = False) -> str:
     if ci is True:
         builds_to_ignore = CIInfo().published_releases()
     url = FetchIPSW(builds_to_ignore).fetch()
+    if url is None:
+        return ""
     file = DownloadFile(url).file()
     return file
 

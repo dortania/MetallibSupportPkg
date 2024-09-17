@@ -1,5 +1,14 @@
 [
     {
+        "build": "24B5046f",
+        "version": "15.1",
+        "date": "2024-09-17",
+        "sha1sum": "a340586e360d4f48efc6f16bda52a7c94804e32b",
+        "name": "MetallibSupportPkg 15.1 beta 4 build 24B5046f",
+        "seen": "2024-09-17",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.1-24B5046f/MetallibSupportPkg-15.1-24B5046f.pkg"
+    },
+    {
         "build": "24A335",
         "version": "15.0",
         "date": "2024-09-09",

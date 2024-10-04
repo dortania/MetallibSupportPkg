@@ -1,5 +1,14 @@
 [
     {
+        "build": "24A348",
+        "version": "15.0.1",
+        "date": "2024-10-03",
+        "sha1sum": "d1089bb4f6f6f6ad60480a45c9d2e91965fa2703",
+        "name": "MetallibSupportPkg 15.0.1 build 24A348",
+        "seen": "2024-10-04",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.0.1-24A348/MetallibSupportPkg-15.0.1-24A348.pkg"
+    },
+    {
         "build": "24B5055e",
         "version": "15.1",
         "date": "2024-09-23",

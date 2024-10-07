@@ -1,5 +1,14 @@
 [
     {
+        "build": "24B5070a",
+        "version": "15.1",
+        "date": "2024-10-07",
+        "sha1sum": "3678b0363dd38e2a73ea0c1255a0eab4476e4f7e",
+        "name": "MetallibSupportPkg 15.1 beta 6 build 24B5070a",
+        "seen": "2024-10-07",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.1-24B5070a/MetallibSupportPkg-15.1-24B5070a.pkg"
+    },
+    {
         "build": "24A348",
         "version": "15.0.1",
         "date": "2024-10-03",

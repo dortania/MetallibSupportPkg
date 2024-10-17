@@ -146,12 +146,14 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    result = ""
+
     if args.download:
-        print(download(args.continuous_integration))
+        result = download(args.continuous_integration)
     elif args.extract:
-        print(extract(args.extract))
+        result = extract(args.extract)
     elif args.fetch:
-        print(fetch(args.fetch))
+        result = fetch(args.fetch)
     elif args.patch:
         patch(args.patch, args.multiprocessing)
     elif args.build_sys_patch:
@@ -160,3 +162,6 @@ def main() -> None:
         build_pkg(args.build_pkg, args.pkg_signing_identity, args.notarization_team_id, args.notarization_apple_id, args.notarization_password)
     else:
         parser.print_help()
+
+    if result != "":
+        print(result)

@@ -9,6 +9,15 @@
         "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.1.1-24B91/MetallibSupportPkg-15.1.1-24B91.pkg"
     },
     {
+        "build": "24B2091",
+        "version": "15.1.1",
+        "date": "2024-11-19",
+        "sha1sum": "f9c870544bc208d9574eb07d8226cd80a77e13e2",
+        "name": "MetallibSupportPkg 15.1.1 build 24B2091",
+        "seen": "2024-11-20",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.1.1-24B2091/MetallibSupportPkg-15.1.1-24B2091.pkg"
+    },
+    {
         "build": "24C5079e",
         "version": "15.2",
         "date": "2024-11-11",

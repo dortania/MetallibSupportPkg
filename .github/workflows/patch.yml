@@ -85,21 +85,21 @@ jobs:
 
       - name: Upload metal libraries to Artifacts
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MetallibSupportPkg.pkg
           path: ./MetallibSupportPkg-*.pkg
 
       - name: Upload sys_patch_dict.py to Artifacts
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sys_patch_dict.py
           path: sys_patch_dict.py
 
       - name: Upload manifest to Artifacts
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: manifest.json
           path: deploy/manifest.json

@@ -1,5 +1,14 @@
 [
     {
+        "build": "24C100",
+        "version": "15.2",
+        "date": "2024-12-09",
+        "sha1sum": "84b4c760d1553f153407e1b4ea9227b80942886d",
+        "name": "MetallibSupportPkg 15.2 RC 2 build 24C100",
+        "seen": "2024-12-11",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.2-24C100/MetallibSupportPkg-15.2-24C100.pkg"
+    },
+    {
         "build": "24C98",
         "version": "15.2",
         "date": "2024-12-05",

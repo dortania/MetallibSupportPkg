@@ -1,5 +1,14 @@
 [
     {
+        "build": "24D60",
+        "version": "15.3",
+        "date": "2025-01-21",
+        "sha1sum": "df74b8a291c1bb83491758d2546d72de1ab6386e",
+        "name": "MetallibSupportPkg 15.3 RC build 24D60",
+        "seen": "2025-01-21",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.3-24D60/MetallibSupportPkg-15.3-24D60.pkg"
+    },
+    {
         "build": "24D5055b",
         "version": "15.3",
         "date": "2025-01-16",

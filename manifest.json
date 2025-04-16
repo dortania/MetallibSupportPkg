@@ -1,5 +1,14 @@
 [
     {
+        "build": "24E263",
+        "version": "15.4.1",
+        "date": "2025-04-16",
+        "sha1sum": "0b60b702fa2b7665161d80582ac60e2ed284df6f",
+        "name": "MetallibSupportPkg 15.4.1 build 24E263",
+        "seen": "2025-04-16",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.4.1-24E263/MetallibSupportPkg-15.4.1-24E263.pkg"
+    },
+    {
         "build": "24F5053f",
         "version": "15.5",
         "date": "2025-04-14",

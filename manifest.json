@@ -1,5 +1,14 @@
 [
     {
+        "build": "24F5053j",
+        "version": "15.5",
+        "date": "2025-04-21",
+        "sha1sum": "1c0fd64b61c1b12d0970041f3c3739d59b68c2fc",
+        "name": "MetallibSupportPkg 15.5 beta 3 build 24F5053j",
+        "seen": "2025-04-21",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.5-24F5053j/MetallibSupportPkg-15.5-24F5053j.pkg"
+    },
+    {
         "build": "24E263",
         "version": "15.4.1",
         "date": "2025-04-16",

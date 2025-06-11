@@ -12,9 +12,10 @@ from .. import __version__
 
 class FetchIPSW:
 
-    def __init__(self, builds_to_ignore: list = [], minimum_version: str = "15") -> None:
+    def __init__(self, builds_to_ignore: list = [], minimum_version: str = "15", maximum_version: str = "15.99.99") -> None:
         self._builds_to_ignore = builds_to_ignore
         self._minimum_version  = packaging.version.parse(minimum_version)
+        self._maximum_version  = packaging.version.parse(maximum_version)
 
 
     def _fetch_apple_db_items(self) -> dict:
@@ -54,7 +55,8 @@ class FetchIPSW:
                     continue
 
                 try:
-                    if packaging.version.parse(item["version"].split(" ")[0]) < self._minimum_version:
+                    version = packaging.version.parse(item["version"].split(" ")[0])
+                    if version < self._minimum_version or version > self._maximum_version:
                         continue
                 except packaging.version.InvalidVersion:
                     continue

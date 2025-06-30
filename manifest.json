@@ -1,5 +1,14 @@
 [
     {
+        "build": "24G5065c",
+        "version": "15.6",
+        "date": "2025-06-30",
+        "sha1sum": "5d2fea929a491ba71fee33dfc2fac1c645c10093",
+        "name": "MetallibSupportPkg 15.6 beta 2 build 24G5065c",
+        "seen": "2025-06-30",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.6-24G5065c/MetallibSupportPkg-15.6-24G5065c.pkg"
+    },
+    {
         "build": "24G5054d",
         "version": "15.6",
         "date": "2025-06-16",

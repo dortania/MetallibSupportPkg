@@ -1,5 +1,14 @@
 [
     {
+        "build": "24G84",
+        "version": "15.6",
+        "date": "2025-07-21",
+        "sha1sum": "7dd9ab8dba1e088c297934f7d14a0df144f7ec91",
+        "name": "MetallibSupportPkg 15.6 RC build 24G84",
+        "seen": "2025-07-21",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.6-24G84/MetallibSupportPkg-15.6-24G84.pkg"
+    },
+    {
         "build": "24G5074c",
         "version": "15.6",
         "date": "2025-07-14",

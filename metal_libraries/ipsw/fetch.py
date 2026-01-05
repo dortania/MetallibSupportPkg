@@ -67,9 +67,11 @@ class FetchIPSW:
                         name += " " + item["appledbWebImage"]["id"]
 
                 for source in item["sources"]:
-                    if "links" not in source:
+                    if "VirtualMac2,1" not in source.get("deviceMap", []):
                         continue
 
+                    if "links" not in source:
+                        continue
                     hash = None
                     if "hashes" in source:
                         if "sha1" in source["hashes"]:

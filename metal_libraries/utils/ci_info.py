@@ -10,7 +10,7 @@ from ..network import NetworkUtilities
 class CIInfo:
 
     def __init__(self) -> None:
-        self._url = "https://api.github.com/repos/dortania/MetallibSupportPkg/releases"
+        self._url = "https://api.github.com/repos/dortania/MetallibSupportPkg/releases?per_page=1000"
 
 
     def published_releases(self) -> list[str]:

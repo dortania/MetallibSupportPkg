@@ -55,6 +55,7 @@ class IPSWExtract:
             with open(f"{tmp_dir}/BuildManifest.plist", "rb") as f:
                 build_manifest = plistlib.load(f)
 
+            system_image_path = None
             for build_identity in build_manifest["BuildIdentities"]:
                 if build_identity["Ap,ProductType"] == "VirtualMac2,1":
                     system_image_path = build_identity["Manifest"]["OS"]["Info"]["Path"]

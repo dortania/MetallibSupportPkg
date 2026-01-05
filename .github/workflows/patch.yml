@@ -58,17 +58,23 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Download latest Sequoia IPSW
-        run: echo "IPSW_FILE=$(python3 metallib.py --download --continuous-integration)" >> $GITHUB_OUTPUT
+        run: |
+          IPSW_FILE=$(python3 metallib.py --download --continuous-integration)
+          echo "IPSW_FILE=${IPSW_FILE}" >> $GITHUB_OUTPUT
         id: download
 
       - name: Extract system volume
         if: steps.download.outputs.IPSW_FILE != ''
-        run: echo "DMG_FILE=$(python3 metallib.py --extract ${{ steps.download.outputs.IPSW_FILE }})" >> $GITHUB_OUTPUT
+        run: |
+          DMG_FILE=$(python3 metallib.py --extract "${{ steps.download.outputs.IPSW_FILE }}")
+          echo "DMG_FILE=${DMG_FILE}" >> $GITHUB_OUTPUT
         id: extract
 
       - name: Fetch metal libraries
         if: steps.extract.outputs.DMG_FILE != ''
-        run: echo "BACKUP_FOLDER=$(python3 metallib.py --fetch ${{ steps.extract.outputs.DMG_FILE }})" >> $GITHUB_OUTPUT
+        run: |
+          BACKUP_FOLDER=$(python3 metallib.py --fetch "${{ steps.extract.outputs.DMG_FILE }}")
+          echo "BACKUP_FOLDER=${BACKUP_FOLDER}" >> $GITHUB_OUTPUT
         id: fetch
 
       - name: Patch metal libraries

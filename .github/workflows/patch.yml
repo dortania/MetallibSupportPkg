@@ -11,6 +11,9 @@ concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}
 
+env:
+  PYTHONUNBUFFERED: 1
+
 jobs:
   build:
     name: CI - Patch latest Sequoia metallib's

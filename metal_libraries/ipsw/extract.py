@@ -13,10 +13,8 @@ from ..utils.log import log
 
 
 class IPSWExtract:
-
     def __init__(self, ipsw: str) -> None:
         self._ipsw = Path(ipsw)
-
 
     def _decrypt_aea(self, input: Path) -> str:
         """
@@ -30,19 +28,21 @@ class IPSWExtract:
         result = subprocess.run(
             [
                 aea_bin,
-                "--input",  input,
-                "--output", output,
+                "--input",
+                input,
+                "--output",
+                output,
                 "--decrypt-only",
-                "--network"
+                "--network",
             ],
-            capture_output=True, text=True
+            capture_output=True,
+            text=True,
         )
         if result.returncode != 0:
             log(result)
             raise Exception(f"Failed to decrypt {input}")
 
         return output
-
 
     def _extract_system_volume(self) -> str:
         """
@@ -70,14 +70,92 @@ class IPSWExtract:
                 system_image_path = self._decrypt_aea(system_image_path)
 
             # Copy from tmp_dir to cwd
-            result = subprocess.run(["/bin/cp", "-cr", system_image_path, "."], capture_output=True, text=True)
+            result = subprocess.run(
+                ["/bin/cp", "-cr", system_image_path, "."],
+                capture_output=True,
+                text=True,
+            )
             if result.returncode != 0:
                 log(result)
                 raise Exception(f"Failed to copy {system_image_path}")
 
-
         return system_image_path.name
 
+    def extract(self) -> str:
+        """
+        Extract the system volume from an IPSW file.
+        """
+        return self._extract_system_volume()
+
+
+class OTAExtract:
+    def __init__(self, ota: str) -> None:
+        self._ota = Path(ota)
+
+    def _decrypt_aea(self, input: Path, output: Path) -> str:
+        """
+        Decrypt an AEA file.
+        """
+        aea_bin = Path(__file__).resolve().parent / "bins" / "aastuff"
+        if not aea_bin.exists():
+            raise FileNotFoundError(f"{aea_bin} not found")
+
+        result = subprocess.run(
+            [
+                aea_bin,
+                "--input",
+                input,
+                "--output",
+                output,
+                "--network",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            log(result)
+            raise Exception(f"Failed to decrypt {input}")
+
+        return output
+
+    def _extract_system_volume(self) -> str:
+        """
+        Extract the system volume from an OTA file.
+        """
+
+        output_dir = Path("root")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            if self._ota.suffix == ".aea":
+                self._decrypt_aea(self._ota, Path(tmp_dir) / "extracted")
+            else:
+                with zipfile.ZipFile(self._ota, "r") as zip_ref:
+                    zip_ref.extractall(tmp_dir)
+
+            # Extract all payload files in AssetData/payloadv2
+            payload_dir = Path(tmp_dir) / "AssetData" / "payloadv2"
+            for file in list(payload_dir.glob("payload.*")):
+                if file.suffix == ".ecc":
+                    continue
+                result = subprocess.run(
+                    [
+                        "/usr/bin/aa",
+                        "extract",
+                        "-i",
+                        str(file),
+                        "-d",
+                        str(output_dir),
+                        "-include-regex",
+                        ".*metallib.*",
+                        "-include-path",
+                        "System/Library/CoreServices/SystemVersion.plist",
+                    ],
+                )
+                if result.returncode != 0:
+                    log(result)
+                    raise Exception(f"Failed to extract {file}")
+
+        return str(output_dir)
 
     def extract(self) -> str:
         """

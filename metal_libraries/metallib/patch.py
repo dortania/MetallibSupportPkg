@@ -387,10 +387,12 @@ class MetallibPatch:
         Patch all .metallib files in the given directory
         """
         if use_multiprocessing is True:
-            files = list(Path(input).rglob("**/*.metallib"))
+            files = [i for i in Path(input).rglob("**/*.metallib") if not i.is_symlink()]
             with multiprocessing.Pool() as pool:
                 # Use the pool to process files in parallel
                 pool.starmap(self._patch_all_process_individual_file, [(file,) for file in files])
         else:
             for file in Path(input).rglob("**/*.metallib"):
+                if file.is_symlink():
+                    continue
                 self._patch_all_process_individual_file(file)

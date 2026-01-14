@@ -18,7 +18,7 @@ class FetchIPSW:
         self._maximum_version  = packaging.version.parse(maximum_version)
 
 
-    def _fetch_apple_db_items(self) -> dict:
+    def _fetch_apple_db_items(self):
         """
         Get macOS installers from AppleDB
         """
@@ -31,78 +31,80 @@ class FetchIPSW:
             # }
         ]
 
-        apple_db = NetworkUtilities().get("https://api.appledb.dev/main.json")
+        apple_db = NetworkUtilities().get("https://api.appledb.dev/ios/macOS/main.json")
         if apple_db is None:
-            return installers
+            return []
 
         apple_db = apple_db.json()
-        for group in apple_db:
-            if group != "ios":
+        for item in apple_db:
+            if item.get("internal") or item.get("rsr"):
                 continue
-            for item in apple_db[group]:
-                if "osStr" not in item:
+
+            if "build" not in item or item["build"] in self._builds_to_ignore:
+                continue
+
+            try:
+                version = packaging.version.parse(item["version"].split(" ")[0])
+                if version < self._minimum_version or version > self._maximum_version:
                     continue
-                if item["osStr"] != "macOS":
-                    continue
-                if "build" not in item:
-                    continue
-                if "version" not in item:
-                    continue
-                if "sources" not in item:
+            except packaging.version.InvalidVersion:
+                continue
+
+            # We use MacPro7,1 to filter out any Apple silicon-only builds.
+            if "MacPro7,1" not in item.get("deviceMap", []):
+                continue
+
+            name = "macOS"
+            if "appledbWebImage" in item:
+                if "id" in item["appledbWebImage"]:
+                    name += " " + item["appledbWebImage"]["id"]
+
+            for source in item.get("sources", []):
+                # OTAs are unified, so MacPro7,1 and VirtualMac2,1 will be in the device map
+                # IPSWs are not, so we only check for VirtualMac2,1
+                if "VirtualMac2,1" not in source.get("deviceMap", []):
                     continue
 
-                if item["build"] in self._builds_to_ignore:
+                if source["type"] not in ["ipsw", "ota"]:
                     continue
 
-                try:
-                    version = packaging.version.parse(item["version"].split(" ")[0])
-                    if version < self._minimum_version or version > self._maximum_version:
+                for link in source.get("links", []):
+                    if not link["active"]:
                         continue
-                except packaging.version.InvalidVersion:
+
+                    installers.append(
+                        {
+                            "Name": name,
+                            "Version": item["version"],
+                            "Type": source["type"],
+                            "Build": item["build"],
+                            "URL": link["url"],
+                            "Variant": "Beta" if (item.get("beta") or item.get("rc")) else "Public",
+                            "Date": item["released"],
+                            "Hash": source.get("hashes", {}).get("sha1"),
+                        }
+                    )
+                    # Don't process any other links
+                    break
+                else:
+                    # If we didn't find any links, go to the next source
                     continue
 
-                name = "macOS"
-                if "appledbWebImage" in item:
-                    if "id" in item["appledbWebImage"]:
-                        name += " " + item["appledbWebImage"]["id"]
-
-                for source in item["sources"]:
-                    if "VirtualMac2,1" not in source.get("deviceMap", []):
-                        continue
-
-                    if "links" not in source:
-                        continue
-                    hash = None
-                    if "hashes" in source:
-                        if "sha1" in source["hashes"]:
-                            hash = source["hashes"]["sha1"]
-
-                    for entry in source["links"]:
-                        if "url" not in entry:
-                            continue
-                        if entry["url"].endswith(".ipsw") is False:
-                            continue
-                        if "preferred" in entry:
-                            if entry["preferred"] is False:
-                                continue
-
-                        installers.append({
-                            "Name":      name,
-                            "Version":   item["version"],
-                            "Build":     item["build"],
-                            "URL":       entry["url"],
-                            "Variant":   "Beta" if item["beta"] else "Public",
-                            "Date":      item["released"],
-                            "Hash":      hash,
-                        })
+                # We found a valid source, so don't check any other sources (so that we prefer IPSWs over OTAs)
+                break
 
         # Deduplicate builds
-        installers = list({installer['Build']: installer for installer in installers}.values())
+        installers_by_build = {}
+        for installer in installers:
+            installers_by_build.setdefault(installer["Build"], []).append(installer)
+        
+        for build, installer_variants in installers_by_build.items():
+            installer_variants.sort(key=lambda x: (x["Type"] != "ipsw", x["Variant"] != "Public"))
+        
+        deduplicated = [variants[0] for variants in installers_by_build.values()]
+        deduplicated.sort(key=lambda x: x["Date"], reverse=True)
 
-        # Reverse list
-        installers = installers[::-1]
-
-        return installers
+        return deduplicated
 
 
     def _save_info(self, info: dict) -> None:

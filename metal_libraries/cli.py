@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .                   import __version__, __url__
 from .ipsw.fetch         import FetchIPSW
-from .ipsw.extract       import IPSWExtract
+from .ipsw.extract       import IPSWExtract, OTAExtract
 from .metallib.fetch     import MetallibFetch
 from .metallib.patch     import MetallibPatch
 from .utils.download     import DownloadFile
@@ -49,6 +49,8 @@ def extract(input: str) -> str:
     Returns:
     - path to the extracted system volume
     """
+    if input.endswith(".aea") or input.endswith(".zip"):
+        return OTAExtract(input).extract()
     return IPSWExtract(input).extract()
 
 

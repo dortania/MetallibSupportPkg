@@ -131,3 +131,5 @@ jobs:
           branch: gh-pages
           folder: deploy/
           clean: true
+          git-config-name: GitHub Actions
+          git-config-email: github-actions[bot]@users.noreply.github.com

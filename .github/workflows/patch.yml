@@ -1,8 +1,8 @@
 name: CI - Patch latest Sequoia metallib's
 
 on:
-  schedule:
-  - cron: "0 */3 * * *"
+  # schedule:
+  # - cron: "0 */3 * * *"
   push:
     branches:
       - main
@@ -82,7 +82,7 @@ jobs:
 
       - name: Patch metal libraries
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }}
+        run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }} --multiprocessing
 
       - name: Build sys_patch_dict.py
         if: steps.fetch.outputs.BACKUP_FOLDER != ''

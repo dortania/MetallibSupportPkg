@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 concurrency:
   cancel-in-progress: ${{ github.event_name == 'push' }}

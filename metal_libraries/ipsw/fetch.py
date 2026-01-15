@@ -102,7 +102,7 @@ class FetchIPSW:
             installer_variants.sort(key=lambda x: (x["Type"] != "ipsw", x["Variant"] != "Public"))
         
         deduplicated = [variants[0] for variants in installers_by_build.values()]
-        deduplicated.sort(key=lambda x: x["Date"], reverse=True)
+        deduplicated.sort(key=lambda x: (x["Variant"] == "Public", x["Date"]), reverse=True)
 
         return deduplicated
 

@@ -113,23 +113,23 @@ jobs:
           name: manifest.json
           path: deploy/manifest.json
 
-      - name: Create GitHub release
-        if: ${{ github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            MetallibSupportPkg-*.pkg
-            sys_patch_dict.py
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ steps.fetch.outputs.BACKUP_FOLDER }}
+      # - name: Create GitHub release
+      #   if: ${{ github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: |
+      #       MetallibSupportPkg-*.pkg
+      #       sys_patch_dict.py
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     tag_name: ${{ steps.fetch.outputs.BACKUP_FOLDER }}
 
-      - name: Sync GitHub Pages
-        if: ${{ github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
-        uses: JamesIves/github-pages-deploy-action@v4.8.0
-        with:
-          token: ${{ secrets.ACCESS_TOKEN }}
-          branch: gh-pages
-          folder: deploy/
-          clean: true
-          git-config-name: GitHub Actions
-          git-config-email: github-actions[bot]@users.noreply.github.com
+      # - name: Sync GitHub Pages
+      #   if: ${{ github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
+      #   uses: JamesIves/github-pages-deploy-action@v4.8.0
+      #   with:
+      #     token: ${{ secrets.ACCESS_TOKEN }}
+      #     branch: gh-pages
+      #     folder: deploy/
+      #     clean: true
+      #     git-config-name: GitHub Actions
+      #     git-config-email: github-actions[bot]@users.noreply.github.com

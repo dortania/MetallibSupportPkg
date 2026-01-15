@@ -132,9 +132,9 @@ class OTAExtract:
                 with zipfile.ZipFile(self._ota, "r") as zip_ref:
                     zip_ref.extractall(tmp_dir)
 
-            # Extract all payload files in AssetData/payloadv2
+            # Extract all payload files in AssetData/payloadv2, as well as the fixup manifest and the data payload
             payload_dir = Path(tmp_dir) / "AssetData" / "payloadv2"
-            for file in list(payload_dir.glob("payload.*")):
+            for file in sorted(payload_dir.glob("payload.*")) + [payload_dir / "fixup.manifest", payload_dir / "data_payload"]:
                 if file.suffix == ".ecc":
                     continue
                 result = subprocess.run(
@@ -145,10 +145,7 @@ class OTAExtract:
                         str(file),
                         "-d",
                         str(output_dir),
-                        "-include-regex",
-                        ".*metallib.*",
-                        "-include-path",
-                        "System/Library/CoreServices/SystemVersion.plist",
+                        "-enable-dedup"
                     ],
                 )
                 if result.returncode != 0:

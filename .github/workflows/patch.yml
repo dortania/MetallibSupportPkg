@@ -8,7 +8,7 @@ on:
       - main
 
 concurrency:
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'push' }}
   group: ${{ github.workflow }}
 
 env:

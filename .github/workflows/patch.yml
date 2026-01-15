@@ -32,10 +32,10 @@ jobs:
       ORG_MAC_NOTARIZATION_PASSWORD: ${{ secrets.ORG_MAC_NOTARIZATION_PASSWORD }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v6
         with:
           python-version: 3.11
 
@@ -94,28 +94,28 @@ jobs:
 
       - name: Upload metal libraries to Artifacts
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: MetallibSupportPkg.pkg
           path: ./MetallibSupportPkg-*.pkg
 
       - name: Upload sys_patch_dict.py to Artifacts
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sys_patch_dict.py
           path: sys_patch_dict.py
 
       - name: Upload manifest to Artifacts
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: manifest.json
           path: deploy/manifest.json
 
       - name: Create GitHub release
         if: ${{ github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             MetallibSupportPkg-*.pkg
@@ -125,9 +125,9 @@ jobs:
 
       - name: Sync GitHub Pages
         if: ${{ github.ref == 'refs/heads/main' && steps.fetch.outputs.BACKUP_FOLDER != '' }}
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: deploy/
-          CLEAN: true
+          token: ${{ secrets.ACCESS_TOKEN }}
+          branch: gh-pages
+          folder: deploy/
+          clean: true

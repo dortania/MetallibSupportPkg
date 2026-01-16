@@ -57,6 +57,7 @@ jobs:
           rsync -a --delete empty_dir/ /Applications/Xcode_15.0.1.app/
           rsync -a --delete empty_dir/ /Applications/Xcode_14.3.1.app/
           rsync -a --delete empty_dir/ /Users/runner/Library/Android/sdk/
+          df -h
 
       - name: Install dependencies
         run: python3 -m pip install -r requirements.txt

@@ -145,8 +145,8 @@ class OTAExtract:
                         str(file),
                         "-d",
                         str(output_dir),
-                        "-exclude-regex",
-                        ".*/dslocal"
+                        # "-exclude-regex",
+                        # ".*/dslocal"
                         "-enable-dedup"
                     ],
                 )

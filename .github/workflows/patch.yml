@@ -70,7 +70,7 @@ jobs:
       - name: Extract system volume
         if: steps.download.outputs.IPSW_FILE != ''
         run: |
-          DMG_FILE=$(python3 metallib.py --extract "${{ steps.download.outputs.IPSW_FILE }}")
+          DMG_FILE=$(sudo python3 metallib.py --extract "${{ steps.download.outputs.IPSW_FILE }}")
           echo "DMG_FILE=${DMG_FILE}" >> $GITHUB_OUTPUT
         id: extract
 

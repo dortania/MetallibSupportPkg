@@ -134,7 +134,10 @@ class OTAExtract:
 
             # Extract all payload files in AssetData/payloadv2, as well as the fixup manifest and the data payload
             payload_dir = Path(tmp_dir) / "AssetData" / "payloadv2"
-            for file in sorted(payload_dir.glob("payload.*")) + [payload_dir / "fixup.manifest", payload_dir / "data_payload"]:
+            for file in sorted(payload_dir.glob("payload.*")) + [
+                # payload_dir / "fixup.manifest",  # Buggy
+                payload_dir / "data_payload",
+            ]:
                 if file.suffix == ".ecc":
                     continue
                 result = subprocess.run(
@@ -155,6 +158,32 @@ class OTAExtract:
                 if result.returncode != 0:
                     log(result)
                     raise Exception(f"Failed to extract {file}")
+
+            # Handle links.txt
+            links_txt = (Path(tmp_dir) / "AssetData" / "payloadv2" / "links.txt").read_text(encoding="utf-8").splitlines()
+            links = {}
+            last_target = None
+            for line in links_txt:
+                if not line.strip():
+                    continue
+                if line[0] == "=":
+                    last_target = line[1:].strip()
+                    links.setdefault(last_target, [])
+                elif line[0] == "+":
+                    assert last_target
+                    links[last_target].append(line[1:].strip())
+
+            for target, links in links.items():
+                if "metallib" not in target:
+                    continue
+                target_path = output_dir / target
+                assert target_path.exists()
+                for link in links:
+                    link_path = output_dir / link
+                    link_path.parent.mkdir(parents=True, exist_ok=True)
+                    subprocess.check_call(
+                        ["/bin/cp", "-c", str(target_path), str(link_path)]
+                    )
 
         return str(output_dir)
 

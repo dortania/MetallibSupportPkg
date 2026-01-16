@@ -4,8 +4,8 @@ on:
   schedule:
   - cron: "0 */3 * * *"
   push:
-    branches:
-      - main
+    branches-ignore:
+      - gh-pages
   workflow_dispatch:
 
 concurrency:

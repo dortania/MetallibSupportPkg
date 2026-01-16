@@ -68,6 +68,11 @@ jobs:
           echo "IPSW_FILE=${IPSW_FILE}" >> $GITHUB_OUTPUT
         id: download
 
+      - name: Setup upterm session
+        uses: owenthereal/action-upterm@v1
+        with:
+          limit-access-to-actor: true
+
       - name: Extract system volume
         if: steps.download.outputs.IPSW_FILE != ''
         run: |

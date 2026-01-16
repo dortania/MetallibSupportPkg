@@ -145,8 +145,10 @@ class OTAExtract:
                         str(file),
                         "-d",
                         str(output_dir),
-                        # "-exclude-regex",
-                        # ".*/dslocal"
+                        "-include-regex",
+                        ".*metallib.*",
+                        "-include-path",
+                        "System/Library/CoreServices/SystemVersion.plist",
                         "-enable-dedup"
                     ],
                 )

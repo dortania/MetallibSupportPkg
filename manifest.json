@@ -63,6 +63,15 @@
         "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.7.2-24G325/MetallibSupportPkg-15.7.2-24G325.pkg"
     },
     {
+        "build": "24G322",
+        "version": "15.7.2",
+        "date": "2025-10-20",
+        "sha1sum": "7644a48f6b8bb5afe694ad1ff46c7365fc1af844",
+        "name": "MetallibSupportPkg 15.7.2 RC 3 build 24G322",
+        "seen": "2026-01-18",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.7.2-24G322/MetallibSupportPkg-15.7.2-24G322.pkg"
+    },
+    {
         "build": "24G231",
         "version": "15.7.1",
         "date": "2025-09-29",

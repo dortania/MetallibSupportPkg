@@ -1,5 +1,14 @@
 [
     {
+        "build": "24G512",
+        "version": "15.7.4",
+        "date": "2026-01-26",
+        "sha1sum": "b38845e288fa98af03da3ddc5cea2b8429c45e0c",
+        "name": "MetallibSupportPkg 15.7.4 RC 3 build 24G512",
+        "seen": "2026-01-27",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.7.4-24G512/MetallibSupportPkg-15.7.4-24G512.pkg"
+    },
+    {
         "build": "24G508",
         "version": "15.7.4",
         "date": "2026-01-12",

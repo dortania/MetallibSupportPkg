@@ -1,5 +1,14 @@
 [
     {
+        "build": "24G607",
+        "version": "15.7.5",
+        "date": "2026-02-16",
+        "sha1sum": "19b2cb50178d699885c8f1bc6c76cfbe27753be2",
+        "name": "MetallibSupportPkg 15.7.5 RC build 24G607",
+        "seen": "2026-02-17",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.7.5-24G607/MetallibSupportPkg-15.7.5-24G607.pkg"
+    },
+    {
         "build": "24G517",
         "version": "15.7.4",
         "date": "2026-02-04",

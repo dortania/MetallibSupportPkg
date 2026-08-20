@@ -1,5 +1,14 @@
 [
     {
+        "build": "24G830",
+        "version": "15.7.9",
+        "date": "2026-08-06",
+        "sha1sum": "9d95c64142a9a426f56d3265d4f8a6fa31585333",
+        "name": "MetallibSupportPkg 15.7.9 build 24G830",
+        "seen": "2026-08-20",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.7.9-24G830/MetallibSupportPkg-15.7.9-24G830.pkg"
+    },
+    {
         "build": "24G809",
         "version": "15.7.8",
         "date": "2026-06-15",

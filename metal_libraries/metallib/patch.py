@@ -29,16 +29,24 @@ Manual steps:
 6. Pack all .air files into a new .metallib file
 """
 
+import os
 import re
 import struct
 import tempfile
+import functools
 import subprocess
 import multiprocessing
 
 from pathlib import Path
 from typing import Optional
+from concurrent.futures import ThreadPoolExecutor
 
 from ..utils.log import log
+
+
+@functools.cache
+def _tool(name: str) -> str:
+    return subprocess.run(["/usr/bin/xcrun", "--find", name], capture_output=True, text=True, check=True).stdout.strip()
 
 
 class MetallibPatch:
@@ -67,7 +75,7 @@ class MetallibPatch:
         """
         output = Path(input).with_suffix(".air")
 
-        result = subprocess.run(["/usr/bin/xcrun", "metal", "-c", "-mmacos-version-min=14.0", input, "-o", output], capture_output=True, text=True)
+        result = subprocess.run([_tool("metal"), "-c", "-mmacos-version-min=14.0", input, "-o", output], capture_output=True, text=True)
         if result.returncode != 0:
             log(result)
             raise Exception(f"Failed to recompile {input}")
@@ -84,7 +92,7 @@ class MetallibPatch:
         """
         output = Path(input).with_suffix(".ll")
 
-        result = subprocess.run(["/usr/bin/xcrun", "metal-objdump", "--disassemble", input], capture_output=True, text=True)
+        result = subprocess.run([_tool("metal-objdump"), "--disassemble", input], capture_output=True, text=True)
         if result.returncode != 0:
             log(result)
             raise Exception(f"Failed to decompile {input}")
@@ -117,7 +125,7 @@ class MetallibPatch:
         Returns:
         - Path to the packed .metallib
         """
-        result = subprocess.run(["/usr/bin/xcrun", "metallib", *input_, "-o", output], capture_output=True, text=True)
+        result = subprocess.run([_tool("metallib"), *input_, "-o", output], capture_output=True, text=True)
         if result.returncode != 0:
             log(result)
             raise Exception(f"Failed to pack {input_} into {output}")
@@ -271,6 +279,12 @@ class MetallibPatch:
         return "DOES NOT CONTAIN AIR64 ARCHITECTURE"
 
 
+    def _patch_air(self, air_file: Path) -> Path:
+        ll_file = self._decompile_air_to_ll(air_file)
+        self._patch_ll(ll_file)
+        return self._recompile_ll_to_air(ll_file)
+
+
     def patch(self, input: str, output: str) -> None:
         """
         Patch metallib
@@ -318,21 +332,9 @@ class MetallibPatch:
 
                 Path((tmp_output / function_name)).with_suffix(".air").write_bytes(contents)
 
-            print("- Decompiling .air files to .ll")
-            ll_files = []
-            for air_file in Path(tmp_output).glob("*.air"):
-                ll_file = self._decompile_air_to_ll(air_file)
-                ll_files.append(ll_file)
-
-            print("- Patching .ll files")
-            for ll_file in ll_files:
-                self._patch_ll(ll_file)
-
-            print("- Recompiling .ll files to .air")
-            air_files = []
-            for ll_file in ll_files:
-                air_file = self._recompile_ll_to_air(ll_file)
-                air_files.append(air_file)
+            print("- Patching .air files")
+            with ThreadPoolExecutor(os.cpu_count()) as pool:
+                air_files = list(pool.map(self._patch_air, list(Path(tmp_output).glob("*.air"))))
 
             if len(air_files) == 0:
                 print("- No .air files to pack")

@@ -2,6 +2,7 @@
 cli.py: Command Line Interface for MetallibSupportPkg patching utilities
 """
 
+import json
 import argparse
 import macos_pkg_builder
 import mac_signing_buddy
@@ -12,7 +13,7 @@ from .                   import __version__, __url__
 from .ipsw.fetch         import FetchIPSW
 from .ipsw.extract       import IPSWExtract, OTAExtract
 from .metallib.fetch     import MetallibFetch
-from .metallib.patch     import MetallibPatch
+from .metallib.patch     import MetallibPatch, MetallibCache
 from .utils.download     import DownloadFile
 from .utils.mount        import MountDMG
 from .utils.ci_info      import CIInfo
@@ -72,18 +73,20 @@ def fetch(input: str = "/", output: str = None) -> str:
     return MetallibFetch(input, output).backup()
 
 
-def patch(input: str = "/", multiprocessing: bool = False) -> None:
+def patch(input: str = "/", multiprocessing: bool = False, cache: str = None) -> None:
     """
     Patches all .metallib files in a given path
 
     Parameters:
     - input: str, path to the system volume or DMG
+    - cache: str, path to a previous release with metallib_hashes.json
 
     Returns:
     - None
     """
     if Path(input).is_dir():
-        MetallibPatch().patch_all(input, multiprocessing)
+        hashes = MetallibPatch().patch_all(input, multiprocessing, MetallibCache(cache) if cache else None)
+        Path("metallib_hashes.json").write_text(json.dumps(hashes, indent=2, sort_keys=True))
     else:
         MetallibPatch().patch(input, input)
 
@@ -138,6 +141,7 @@ def main() -> None:
     parser.add_argument("-f", "--fetch",                  type=str,            help="Fetch Metal libraries from the system volume.")
     parser.add_argument("-p", "--patch",                  type=str,            help="Patch Metal libraries.")
     parser.add_argument("-m", "--multiprocessing",        action="store_true", help="Enable multiprocessing for patching.")
+    parser.add_argument("--cache",                        type=str,            help="Reuse patched Metal libraries from a previous release.")
     parser.add_argument("-b", "--build-sys-patch",        type=str,            help="Build a system patch dictionary.")
     parser.add_argument("-z", "--build-pkg",              type=str,            help="Build a macOS package.")
     parser.add_argument("--pkg-signing-identity",         type=str,            help="macOS package signing identity.")
@@ -157,7 +161,7 @@ def main() -> None:
     elif args.fetch:
         result = fetch(args.fetch)
     elif args.patch:
-        patch(args.patch, args.multiprocessing)
+        patch(args.patch, args.multiprocessing, args.cache)
     elif args.build_sys_patch:
         build_sys_patch(args.build_sys_patch, args.continuous_integration)
     elif args.build_pkg:

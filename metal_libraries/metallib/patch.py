@@ -31,7 +31,10 @@ Manual steps:
 
 import os
 import re
+import json
+import shutil
 import struct
+import hashlib
 import tempfile
 import functools
 import subprocess
@@ -47,6 +50,41 @@ from ..utils.log import log
 @functools.cache
 def _tool(name: str) -> str:
     return subprocess.run(["/usr/bin/xcrun", "--find", name], capture_output=True, text=True, check=True).stdout.strip()
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+@functools.cache
+def toolchain_key() -> str:
+    version = subprocess.run([_tool("metal"), "--version"], capture_output=True, text=True).stdout.splitlines()[0]
+    return hashlib.sha256(version.encode() + Path(__file__).read_bytes()).hexdigest()
+
+
+class MetallibCache:
+
+    def __init__(self, root: str) -> None:
+        self._root = Path(root)
+        self._files = {}
+        index = self._root / "metallib_hashes.json"
+        if index.exists():
+            data = json.loads(index.read_text())
+            if data.get("key") == toolchain_key():
+                self._files = data.get("files", {})
+
+    def restore(self, file: Path, relative: str) -> bool:
+        entry = self._files.get(relative)
+        if entry is None or entry["original"] != _sha256(file):
+            return False
+        if entry["patched"] is None:
+            file.unlink()
+            return True
+        cached = self._root / relative
+        if not cached.exists() or _sha256(cached) != entry["patched"]:
+            return False
+        shutil.copyfile(cached, file)
+        return True
 
 
 class MetallibPatch:
@@ -384,17 +422,33 @@ class MetallibPatch:
                 raise Exception(f"Failed to remove {input}")
 
 
-    def patch_all(self, input: str, use_multiprocessing: bool = False) -> None:
+    def patch_all(self, input: str, use_multiprocessing: bool = False, cache: Optional[MetallibCache] = None) -> dict:
         """
         Patch all .metallib files in the given directory
         """
+        root = Path(input)
+        files = [i for i in root.rglob("**/*.metallib") if not i.is_symlink()]
+        originals = {str(file.relative_to(root)): _sha256(file) for file in files}
+
+        if cache is not None:
+            files = [file for file in files if not cache.restore(file, str(file.relative_to(root)))]
+            print(f"Restored {len(originals) - len(files)} of {len(originals)} metallibs from cache")
+
         if use_multiprocessing is True:
-            files = [i for i in Path(input).rglob("**/*.metallib") if not i.is_symlink()]
             with multiprocessing.Pool() as pool:
                 # Use the pool to process files in parallel
                 pool.starmap(self._patch_all_process_individual_file, [(file,) for file in files])
         else:
-            for file in Path(input).rglob("**/*.metallib"):
-                if file.is_symlink():
-                    continue
+            for file in files:
                 self._patch_all_process_individual_file(file)
+
+        return {
+            "key": toolchain_key(),
+            "files": {
+                relative: {
+                    "original": original,
+                    "patched": _sha256(root / relative) if (root / relative).exists() else None,
+                }
+                for relative, original in originals.items()
+            },
+        }

@@ -81,7 +81,6 @@ class FetchIPSW:
                             "URL": link["url"],
                             "Variant": "Beta" if (item.get("beta") or item.get("rc")) else "Public",
                             "Date": item["released"],
-                            "Hash": source.get("hashes", {}).get("sha1"),
                         }
                     )
                     # Don't process any other links

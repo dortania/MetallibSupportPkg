@@ -26,7 +26,6 @@ class MetallibSupportPkgManifest:
             "URL": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-64520/F98C92F6-656A-46BB-A1DB-F447698DBB72/UniversalMac_15.0_24A5327a_Restore.ipsw",
             "Variant": "Beta",
             "Date": "2024-08-20",
-            "Hash": "6402881ec02bee6a7340237517c0872739b42820"
         }
         """
         self._latest_ipsw = latest_ipsw
@@ -43,7 +42,6 @@ class MetallibSupportPkgManifest:
             "build":     self._latest_ipsw["Build"],
             "version":   version,
             "date":      self._latest_ipsw['Date'],
-            "sha1sum":   self._latest_ipsw["Hash"],
             "name":      f"MetallibSupportPkg {self._latest_ipsw['Version']} build {self._latest_ipsw['Build']}",
             "seen":      datetime.now().strftime("%Y-%m-%d"),
             "url":       f"https://github.com/dortania/MetallibSupportPkg/releases/download/{version}-{self._latest_ipsw['Build']}/MetallibSupportPkg-{version}-{self._latest_ipsw['Build']}.pkg",

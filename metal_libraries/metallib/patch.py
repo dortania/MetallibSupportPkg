@@ -29,16 +29,62 @@ Manual steps:
 6. Pack all .air files into a new .metallib file
 """
 
+import os
 import re
+import json
+import shutil
 import struct
+import hashlib
 import tempfile
+import functools
 import subprocess
 import multiprocessing
 
 from pathlib import Path
 from typing import Optional
+from concurrent.futures import ThreadPoolExecutor
 
 from ..utils.log import log
+
+
+@functools.cache
+def _tool(name: str) -> str:
+    return subprocess.run(["/usr/bin/xcrun", "--find", name], capture_output=True, text=True, check=True).stdout.strip()
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+@functools.cache
+def toolchain_key() -> str:
+    version = subprocess.run([_tool("metal"), "--version"], capture_output=True, text=True).stdout.splitlines()[0]
+    return hashlib.sha256(version.encode() + Path(__file__).read_bytes()).hexdigest()
+
+
+class MetallibCache:
+
+    def __init__(self, root: str) -> None:
+        self._root = Path(root)
+        self._files = {}
+        index = self._root / "metallib_hashes.json"
+        if index.exists():
+            data = json.loads(index.read_text())
+            if data.get("key") == toolchain_key():
+                self._files = data.get("files", {})
+
+    def restore(self, file: Path, relative: str) -> bool:
+        entry = self._files.get(relative)
+        if entry is None or entry["original"] != _sha256(file):
+            return False
+        if entry["patched"] is None:
+            file.unlink()
+            return True
+        cached = self._root / relative
+        if not cached.exists() or _sha256(cached) != entry["patched"]:
+            return False
+        shutil.copyfile(cached, file)
+        return True
 
 
 class MetallibPatch:
@@ -67,7 +113,7 @@ class MetallibPatch:
         """
         output = Path(input).with_suffix(".air")
 
-        result = subprocess.run(["/usr/bin/xcrun", "metal", "-c", "-mmacos-version-min=14.0", input, "-o", output], capture_output=True, text=True)
+        result = subprocess.run([_tool("metal"), "-c", "-mmacos-version-min=14.0", input, "-o", output], capture_output=True, text=True)
         if result.returncode != 0:
             log(result)
             raise Exception(f"Failed to recompile {input}")
@@ -84,7 +130,7 @@ class MetallibPatch:
         """
         output = Path(input).with_suffix(".ll")
 
-        result = subprocess.run(["/usr/bin/xcrun", "metal-objdump", "--disassemble", input], capture_output=True, text=True)
+        result = subprocess.run([_tool("metal-objdump"), "--disassemble", input], capture_output=True, text=True)
         if result.returncode != 0:
             log(result)
             raise Exception(f"Failed to decompile {input}")
@@ -117,7 +163,7 @@ class MetallibPatch:
         Returns:
         - Path to the packed .metallib
         """
-        result = subprocess.run(["/usr/bin/xcrun", "metallib", *input_, "-o", output], capture_output=True, text=True)
+        result = subprocess.run([_tool("metallib"), *input_, "-o", output], capture_output=True, text=True)
         if result.returncode != 0:
             log(result)
             raise Exception(f"Failed to pack {input_} into {output}")
@@ -271,6 +317,12 @@ class MetallibPatch:
         return "DOES NOT CONTAIN AIR64 ARCHITECTURE"
 
 
+    def _patch_air(self, air_file: Path) -> Path:
+        ll_file = self._decompile_air_to_ll(air_file)
+        self._patch_ll(ll_file)
+        return self._recompile_ll_to_air(ll_file)
+
+
     def patch(self, input: str, output: str) -> None:
         """
         Patch metallib
@@ -318,21 +370,9 @@ class MetallibPatch:
 
                 Path((tmp_output / function_name)).with_suffix(".air").write_bytes(contents)
 
-            print("- Decompiling .air files to .ll")
-            ll_files = []
-            for air_file in Path(tmp_output).glob("*.air"):
-                ll_file = self._decompile_air_to_ll(air_file)
-                ll_files.append(ll_file)
-
-            print("- Patching .ll files")
-            for ll_file in ll_files:
-                self._patch_ll(ll_file)
-
-            print("- Recompiling .ll files to .air")
-            air_files = []
-            for ll_file in ll_files:
-                air_file = self._recompile_ll_to_air(ll_file)
-                air_files.append(air_file)
+            print("- Patching .air files")
+            with ThreadPoolExecutor(os.cpu_count()) as pool:
+                air_files = list(pool.map(self._patch_air, list(Path(tmp_output).glob("*.air"))))
 
             if len(air_files) == 0:
                 print("- No .air files to pack")
@@ -382,17 +422,33 @@ class MetallibPatch:
                 raise Exception(f"Failed to remove {input}")
 
 
-    def patch_all(self, input: str, use_multiprocessing: bool = False) -> None:
+    def patch_all(self, input: str, use_multiprocessing: bool = False, cache: Optional[MetallibCache] = None) -> dict:
         """
         Patch all .metallib files in the given directory
         """
+        root = Path(input)
+        files = [i for i in root.rglob("**/*.metallib") if not i.is_symlink()]
+        originals = {str(file.relative_to(root)): _sha256(file) for file in files}
+
+        if cache is not None:
+            files = [file for file in files if not cache.restore(file, str(file.relative_to(root)))]
+            print(f"Restored {len(originals) - len(files)} of {len(originals)} metallibs from cache")
+
         if use_multiprocessing is True:
-            files = [i for i in Path(input).rglob("**/*.metallib") if not i.is_symlink()]
             with multiprocessing.Pool() as pool:
                 # Use the pool to process files in parallel
                 pool.starmap(self._patch_all_process_individual_file, [(file,) for file in files])
         else:
-            for file in Path(input).rglob("**/*.metallib"):
-                if file.is_symlink():
-                    continue
+            for file in files:
                 self._patch_all_process_individual_file(file)
+
+        return {
+            "key": toolchain_key(),
+            "files": {
+                relative: {
+                    "original": original,
+                    "patched": _sha256(root / relative) if (root / relative).exists() else None,
+                }
+                for relative, original in originals.items()
+            },
+        }

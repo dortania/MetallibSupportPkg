@@ -82,9 +82,24 @@ jobs:
           echo "BACKUP_FOLDER=${BACKUP_FOLDER}" >> $GITHUB_OUTPUT
         id: fetch
 
+      - name: Fetch previous release
+        if: steps.fetch.outputs.BACKUP_FOLDER != ''
+        run: |
+          TAG=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --json tagName --jq '.[0].tagName')
+          if [ -n "$TAG" ] && gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern metallib_hashes.json --dir previous; then
+            gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern 'MetallibSupportPkg-*.pkg' --dir previous
+            pkgutil --expand-full previous/MetallibSupportPkg-*.pkg previous/expanded
+            CACHE=$(dirname "$(find previous/expanded -path '*/MetallibSupportPkg/*/Info.plist' | head -n 1)")
+            cp previous/metallib_hashes.json "$CACHE/"
+            echo "CACHE=$CACHE" >> $GITHUB_OUTPUT
+          fi
+        id: previous
+
       - name: Patch metal libraries
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
-        run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }}
+        env:
+          CACHE: ${{ steps.previous.outputs.CACHE }}
+        run: python3 metallib.py --patch ${{ steps.fetch.outputs.BACKUP_FOLDER }} ${CACHE:+--cache "$CACHE"}
 
       - name: Build sys_patch_dict.py
         if: steps.fetch.outputs.BACKUP_FOLDER != ''
@@ -122,6 +137,7 @@ jobs:
           files: |
             MetallibSupportPkg-*.pkg
             sys_patch_dict.py
+            metallib_hashes.json
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.fetch.outputs.BACKUP_FOLDER }}
 

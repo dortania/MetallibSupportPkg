@@ -8,6 +8,14 @@
         "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.8.2-24H232/MetallibSupportPkg-15.8.2-24H232.pkg"
     },
     {
+        "build": "24H230",
+        "version": "15.8.2",
+        "date": "2026-10-19",
+        "name": "MetallibSupportPkg 15.8.2 RC 3 build 24H230",
+        "seen": "2026-10-31",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.8.2-24H230/MetallibSupportPkg-15.8.2-24H230.pkg"
+    },
+    {
         "build": "24H32",
         "version": "15.8.1",
         "date": "2026-09-28",

@@ -106,6 +106,14 @@
         "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.7.8-24G824/MetallibSupportPkg-15.7.8-24G824.pkg"
     },
     {
+        "build": "24G822",
+        "version": "15.7.8",
+        "date": "2026-07-20",
+        "name": "MetallibSupportPkg 15.7.8 RC 6 build 24G822",
+        "seen": "2026-11-03",
+        "url": "https://github.com/dortania/MetallibSupportPkg/releases/download/15.7.8-24G822/MetallibSupportPkg-15.7.8-24G822.pkg"
+    },
+    {
         "build": "24G809",
         "version": "15.7.8",
         "date": "2026-06-15",
